@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
+
+namespace Back_to_my_villg
+{
+    public partial class Login : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
+        }      
+        protected void btnSubmit_Click(object sender, EventArgs e)
+        {
+
+
+            int itest = 0;
+            if (txtUserName.Text.Trim() != "")
+            {
+                if (txtPWD.Text.Trim() != "")
+                {
+                    SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["hrConnectionString"].ConnectionString);
+                    try
+                    {
+                        con.Open();
+                        using (SqlCommand command = new SqlCommand("select * from User_login where  login_id = '" + txtUserName.Text.Trim() + "' and password = '" + txtPWD.Text.Trim() + "'", con))
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                itest = 1;
+                                Session["Login_id"] = reader["Login_id"].ToString().Trim();
+                                Session["name"] = reader["name"].ToString().Trim();
+                                Session["Category"] = reader["cat_type"].ToString().Trim();
+                                Session["District"] = reader["district"].ToString().Trim();
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        con.Close();
+                    }
+
+                    if (itest == 0)
+                    {
+                        Label1.Text = "Wrong Password / User Id /You are not Authorized User.";
+                        return;
+                    }
+                    if (Session["Category"].ToString() == "1")
+                    {
+                        Response.Redirect("Doner.aspx");
+                    }
+                    else if (Session["Category"].ToString() == "2")
+                    {
+                        Response.Redirect("Home.aspx");
+                    }
+                    else if (Session["Category"].ToString() == "3")
+                    {
+                        Response.Redirect("Home.aspx");
+                    }
+                    else if (Session["Category"].ToString() == "0")
+                    {
+                        Response.Redirect("Messeage.aspx");
+                    }
+                    else
+                    {
+                        Label1.Text = "You are not Authorized User.";
+                    }
+
+                }
+                else
+                {
+                    txtUserName.Focus();
+                    Label1.Text = "Enter Password";
+                }
+            }
+            else
+            {
+                txtUserName.Focus();
+                Label1.Text = "Enter User Name";
+            }
+        }
+    }
+}
